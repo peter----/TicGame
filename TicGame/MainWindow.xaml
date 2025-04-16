@@ -11,7 +11,8 @@
         <UniformGrid x:Name="BoardGrid" Rows="3" Columns="3" />
         <TextBlock x:Name="StatusText" Grid.Row="1" FontSize="16" Margin="10" TextAlignment="Center"/>
         <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center" Margin="10">
-          
+            <Button Content="New Game" Click="NewGame_Click" Margin="5"/>
+            <Button Content="Help" Click="Help_Click" Margin="5"/>
         </StackPanel>
     </Grid>
 </Window>

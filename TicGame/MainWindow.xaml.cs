@@ -13,6 +13,7 @@ namespace TicTacToeWPF
         private string playerX = "Player X", playerO = "Player O";
         private char currentPlayer = 'X';
         private int moveCount = 0;
+        private string logPath = "game_log.txt";
 
         public MainWindow()
         {
@@ -43,15 +44,16 @@ namespace TicTacToeWPF
         private void Cell_Click(object sender, RoutedEventArgs e)
         {
             Button btn = sender as Button;
-            var pos = (Tuple<int, int>)btn.Tag;
-            if (!string.IsNullOrEmpty(btn.Content?.ToString()))  //Invalid Move
+            Tuple<int, int> pos = (Tuple<int, int>)btn.Tag;
+            if (!string.IsNullOrEmpty(btn.Content?.ToString()))
             {
+                Log("Invalid move: cell already taken.");
                 return;
             }
 
             btn.Content = currentPlayer.ToString();
             moveCount++;
-        
+            Log($"{GetCurrentPlayerName()} placed at ({pos.Item1}, {pos.Item2})");
 
             if (CheckWin(out List<(int, int)> line))
             {
@@ -59,15 +61,16 @@ namespace TicTacToeWPF
                     buttons[r, c].Background = Brushes.LightGreen;
 
                 string winner = GetCurrentPlayerName();
+                string loser = currentPlayer == 'X' ? playerO : playerX;
                 StatusText.Text = $"{winner} wins!";
-             
+                Log($"Game Over - Winner: {winner}, Loser: {loser}");
                 return;
             }
 
             if (moveCount == 9)
             {
                 StatusText.Text = "It's a tie!";
-             
+                Log("Game Over - Tie");
                 return;
             }
 
@@ -75,8 +78,32 @@ namespace TicTacToeWPF
             StatusText.Text = $"{GetCurrentPlayerName()}'s turn ({currentPlayer})";
         }
 
-     
 
+        private void NewGame_Click(object sender, RoutedEventArgs e)
+        {
+            PlayerName playerRealName = new PlayerName();
+            if (playerRealName.ShowDialog() == true)
+            {
+                playerX = playerRealName.PlayerX;
+                playerO = playerRealName.PlayerO;
+                Log($"New Game Started: {playerX} (X) vs {playerO} (O)");
+                InitializeBoard();
+            }
+            else
+            {
+                Log("New Game Canceled");
+            }
+        }
+
+        private void Help_Click(object sender, RoutedEventArgs e)
+        {
+            if (FindBestMove(currentPlayer, out var move))
+                buttons[move.Item1, move.Item2].Background = Brushes.LightBlue;
+            else if (FindBestMove(currentPlayer == 'X' ? 'O' : 'X', out move))
+                buttons[move.Item1, move.Item2].Background = Brushes.Orange;
+            else
+                StatusText.Text = "No critical move found.";
+        }
 
         private string GetCurrentPlayerName() => currentPlayer == 'X' ? playerX : playerO;
 
@@ -101,6 +128,24 @@ namespace TicTacToeWPF
             return !string.IsNullOrEmpty(a) && a == b && b == c;
         }
 
-      
+        private bool FindBestMove(char player, out (int, int) move)
+        {
+            for (int r = 0; r < 3; r++)
+                for (int c = 0; c < 3; c++)
+                    if (string.IsNullOrEmpty(buttons[r, c].Content?.ToString()))
+                    {
+                        buttons[r, c].Content = player.ToString();
+                        bool win = CheckWin(out _);
+                        buttons[r, c].Content = null;
+                        if (win) { move = (r, c); return true; }
+                    }
+            move = (0, 0);
+            return false;
+        }
+
+        private void Log(string message)
+        {
+            File.AppendAllText(logPath, $"{DateTime.Now}: {message}{Environment.NewLine}");
+        }
     }
 }
