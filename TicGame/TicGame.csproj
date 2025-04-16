@@ -55,6 +55,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="GameWinLogic.cs" />
     <Compile Include="PlayerName.xaml.cs">
       <DependentUpon>PlayerName.xaml</DependentUpon>
     </Compile>
