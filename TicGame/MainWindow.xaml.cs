@@ -77,6 +77,7 @@ namespace TicTacToeWPF
 
      
 
+
         private string GetCurrentPlayerName() => currentPlayer == 'X' ? playerX : playerO;
 
         private bool CheckWin(out List<(int, int)> line)
